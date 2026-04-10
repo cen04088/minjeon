@@ -1,10 +1,24 @@
+import requests
 from django.shortcuts import render
 from django.http import JsonResponse
-from .services import recommend_offices, fetch_office_waiting, SERVICE_CHOICES
+from .services import recommend_offices, fetch_office_waiting, SERVICE_CHOICES, fetch_office_list, haversine_km
 
 
 def index(request):
-    return render(request, 'offices/index.html', {'service_choices': SERVICE_CHOICES})
+    offices = fetch_office_list()
+    regions_set = set()
+    for o in offices:
+        if o.get('address'):
+            parts = o.get('address').split()
+            if len(parts) >= 2:
+                city = parts[0][:2] if (parts[0].endswith('광역시') or parts[0].endswith('특별시') or parts[0].endswith('자치시') or parts[0].endswith('자치도')) else parts[0]
+                regions_set.add(f"{city} {parts[1]}")
+    
+    supported_regions = sorted(list(regions_set))
+    return render(request, 'offices/index.html', {
+        'service_choices': SERVICE_CHOICES,
+        'supported_regions': supported_regions,
+    })
 
 
 def recommend(request):
@@ -55,3 +69,43 @@ def api_waiting(request):
         return JsonResponse({'status': 'error', 'message': 'cso_sn 파라미터 필요'}, status=400)
     data = fetch_office_waiting(cso_sn)
     return JsonResponse({'status': 'ok', 'office_id': cso_sn, 'waiting': data})
+
+
+def api_check_region(request):
+    try:
+        lat = float(request.GET.get('lat', 0))
+        lng = float(request.GET.get('lng', 0))
+        
+        # 1. 거리 기반 체크 (빠르고 확실한 fallback)
+        offices = fetch_office_list()
+        min_dist = float('inf')
+        for o in offices:
+            dist = haversine_km(lat, lng, o['lat'], o['lng'])
+            if dist < min_dist:
+                min_dist = dist
+                
+        # 10km 이내 민원실이 있으면 무조건 지원 지역으로 간주
+        if min_dist <= 10.0:
+            return JsonResponse({'supported': True, 'region': '현재 계신 지역'})
+            
+        # 2. Nominatim 역지오코딩 (옵션)
+        # 10km 보다 멀더라도 행정구역 상 속할 수 있으므로 추가 체크
+        headers = {'User-Agent': 'MinjeonApp/1.0'}
+        url = f"https://nominatim.openstreetmap.org/reverse?lat={lat}&lon={lng}&format=json&accept-language=ko"
+        resp = requests.get(url, headers=headers, timeout=3)
+        if resp.status_code == 200:
+            data = resp.json()
+            address = data.get('address', {})
+            # Nominatim은 구/군을 borough, county, city 등으로 내려줌
+            local_name = address.get('borough') or address.get('county') or address.get('city', '')
+            
+            # 사무소 목록에서 지원 지역 포함 여부 확인
+            for o in offices:
+                if local_name and local_name in o.get('address', ''):
+                    return JsonResponse({'supported': True, 'region': local_name})
+                    
+        return JsonResponse({'supported': False, 'region': '알 수 없는 지역'})
+    except Exception as e:
+        # 에러 발생 시 일단 지원 지역으로 간주하거나, 거리 기반 결과만 믿음
+        print(f"[api_check_region] Error: {e}")
+        return JsonResponse({'supported': False, 'region': '오류'})
