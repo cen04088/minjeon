@@ -1,0 +1,18 @@
+# # ── Django ──────────────────────────────────
+# SECRET_KEY=your-secret-key-here
+# DEBUG=False
+# ALLOWED_HOSTS=yourdomain.railway.app,localhost
+
+# # ── PostgreSQL (Railway 자동 주입) ──────────
+# PGDATABASE=minjeon
+# PGUSER=postgres
+# PGPASSWORD=
+# PGHOST=localhost
+# PGPORT=5432
+
+# # ── 공공데이터포털 ────────────────────────────
+# PUBLIC_DATA_API_KEY=REDACTED_PUBLIC_DATA_API_KEY
+
+# # ── API 엔드포인트 (data.go.kr 발급 후 기입) ──
+# WAITING_API_URL=https://apis.data.go.kr/B551982/cso_v2/cso_realtime_v2
+# OFFICE_INFO_API_URL=https://apis.data.go.kr/B551982/cso_v2/cso_info_v2

@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="hero">
+  <h1 class="hero-title">지금 가장 빠른 민원실은?</h1>
+  <p class="hero-desc">위치를 감지하고 민원 종류를 선택하면<br>대기가 가장 짧은 민원실을 추천해 드려요</p>
+</div>
+
+{% if error %}
+<div class="alert alert-error">⚠️ {{ error }}</div>
+{% endif %}
+
+<div class="card search-card">
+  <!-- 위치 감지 -->
+  <div class="location-row">
+    <div class="location-status" id="locationStatus">
+      <span class="dot dot-gray"></span>
+      <span id="locationText">위치를 가져오는 중...</span>
+    </div>
+    <button class="btn-outline" onclick="getLocation()">📍 위치 재탐색</button>
+  </div>
+
+  <form action="/recommend/" method="GET" id="searchForm">
+    <input type="hidden" name="lat" id="lat">
+    <input type="hidden" name="lng" id="lng">
+
+    <!-- 민원 업무 선택 -->
+    <div class="form-group">
+      <label class="form-label">처리할 민원 업무</label>
+      <div class="service-grid">
+        {% for svc in service_choices %}
+        <label class="service-chip">
+          <input type="radio" name="service" value="{{ svc }}">
+          <span>{{ svc }}</span>
+        </label>
+        {% endfor %}
+        <label class="service-chip">
+          <input type="radio" name="service" value="" checked>
+          <span>전체</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- 추천 모드 선택 -->
+    <div class="form-group">
+      <label class="form-label">추천 방식</label>
+      <div class="mode-row">
+        <label class="mode-chip">
+          <input type="radio" name="mode" value="SMART" checked>
+          <span>⚖️ 균형 (기본)</span>
+        </label>
+        <label class="mode-chip">
+          <input type="radio" name="mode" value="FAST">
+          <span>⚡ 빠른 처리 우선</span>
+        </label>
+        <label class="mode-chip">
+          <input type="radio" name="mode" value="NEAR">
+          <span>📍 가까운 곳 우선</span>
+        </label>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-primary" id="submitBtn" disabled>
+      🔍 추천 민원실 찾기
+    </button>
+  </form>
+</div>
+
+<!-- 실시간 대기현황 미리보기 안내 -->
+<div class="info-cards">
+  <div class="info-card">
+    <div class="info-icon">⚡</div>
+    <div class="info-text">
+      <strong>실시간 대기현황</strong>
+      <span>지금 이 순간 대기인원 반영</span>
+    </div>
+  </div>
+  <div class="info-card">
+    <div class="info-icon">📊</div>
+    <div class="info-text">
+      <strong>스마트 스코어링</strong>
+      <span>거리·대기·운영시간 종합 분석</span>
+    </div>
+  </div>
+  <div class="info-card">
+    <div class="info-icon">🗺️</div>
+    <div class="info-text">
+      <strong>전국 민원실 통합</strong>
+      <span>지자체별 파편 정보를 한 곳에</span>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // 페이지 로드 시 자동 위치 탐색
+  window.addEventListener('load', getLocation);
+</script>
+{% endblock %}

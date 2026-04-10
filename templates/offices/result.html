@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}추천 결과 - 민원ON{% endblock %}
+
+{% block content %}
+<div class="result-header">
+  <a href="/" class="btn-back">← 다시 검색</a>
+  <div class="result-meta">
+    <span class="tag">{{ selected_service }}</span>
+    <span class="tag tag-mode">
+      {% if mode == 'FAST' %}⚡ 빠른 처리 우선
+      {% elif mode == 'NEAR' %}📍 가까운 곳 우선
+      {% else %}⚖️ 균형 추천
+      {% endif %}
+    </span>
+  </div>
+  <h2 class="result-title">추천 민원실 TOP {{ results|length }}</h2>
+  <p class="result-sub">실시간 대기현황 기준 · 방금 전 업데이트</p>
+</div>
+
+{% if results.0.tomorrow %}
+<div class="alert alert-tomorrow">
+  🌅 현재 운영 중인 민원실이 없습니다. <strong>내일 기준</strong> 추천 결과를 보여드려요.
+</div>
+{% endif %}
+
+{% if results %}
+  {% for office in results %}
+  <div class="result-card {% if office.rank == 1 %}result-card--top{% endif %}">
+    <div class="result-rank">
+      <span class="rank-badge">{{ office.badge }}</span>
+      <span class="rank-score">{{ office.scores.total }}점</span>
+    </div>
+
+    <div class="result-name">{{ office.name }}</div>
+    <div class="result-address">📌 {{ office.address }}</div>
+    {% if office.phone %}
+    <div class="result-phone">📞 {{ office.phone }}</div>
+    {% endif %}
+
+    <!-- 핵심 지표 3종 -->
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-value {% if office.waiting_count == 0 %}green{% elif office.waiting_count <= 7 %}yellow{% else %}red{% endif %}">
+          {{ office.waiting_count }}명
+        </div>
+        <div class="metric-label">현재 대기</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">{{ office.distance_km }}km</div>
+        <div class="metric-label">거리</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">~{{ office.close_time }}</div>
+        <div class="metric-label">운영 종료</div>
+      </div>
+    </div>
+
+    <!-- 대기 상태 라벨 -->
+    <div class="waiting-label">{{ office.waiting_label }}</div>
+
+    <!-- 점수 분포 바 -->
+    <div class="score-bars">
+      <div class="score-row">
+        <span class="score-label">대기인원</span>
+        <div class="score-bar-wrap">
+          <div class="score-bar" style="width: {{ office.scores.waiting|floatformat:0 }}%"></div>
+        </div>
+        <span class="score-num">{{ office.scores.waiting }}점</span>
+      </div>
+      <div class="score-row">
+        <span class="score-label">거리</span>
+        <div class="score-bar-wrap">
+          <div class="score-bar score-bar--blue" style="width: {{ office.scores.distance|floatformat:0 }}%"></div>
+        </div>
+        <span class="score-num">{{ office.scores.distance }}점</span>
+      </div>
+      <div class="score-row">
+        <span class="score-label">운영시간</span>
+        <div class="score-bar-wrap">
+          <div class="score-bar score-bar--purple" style="width: {{ office.scores.time|floatformat:0 }}%"></div>
+        </div>
+        <span class="score-num">{{ office.scores.time }}점</span>
+      </div>
+    </div>
+
+    <!-- 지도 버튼 -->
+    <a class="btn-map"
+       href="https://map.kakao.com/link/map/{{ office.name }},{{ office.lat }},{{ office.lng }}"
+       target="_blank">
+      🗺️ 카카오맵으로 보기
+    </a>
+  </div>
+  {% endfor %}
+
+{% else %}
+  <div class="empty-state">
+    <div class="empty-icon">🏛️</div>
+    <p>조건에 맞는 민원실을 찾지 못했습니다.</p>
+    <p>업무 종류를 변경하거나 나중에 다시 시도해 주세요.</p>
+    <a href="/" class="btn-primary">다시 검색하기</a>
+  </div>
+{% endif %}
+
+<!-- 새로고침 버튼 (실시간 갱신) -->
+<div class="refresh-row">
+  <button class="btn-outline" onclick="location.reload()">🔄 실시간 갱신</button>
+  <span class="refresh-hint">대기현황은 실시간으로 변동됩니다</span>
+</div>
+
+{% endblock %}
