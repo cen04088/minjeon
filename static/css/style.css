@@ -1,8 +1,8 @@
 /* ── Reset & Base ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-  font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
-  background: #F0F4FF;
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+  background: linear-gradient(135deg, #F0F4FF 0%, #E0E7FF 100%);
   color: #1E293B;
   min-height: 100vh;
   display: flex;
@@ -38,7 +38,16 @@ a { text-decoration: none; color: inherit; }
 .alert-error { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
 
 /* ── Card ── */
-.card { background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,.07); margin-bottom: 16px; }
+.card { 
+  background: rgba(255, 255, 255, 0.7); 
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 20px; 
+  padding: 24px; 
+  box-shadow: 0 8px 32px rgba(37, 99, 235, 0.08); 
+  margin-bottom: 20px; 
+}
 .search-card { }
 
 /* ── Location ── */
@@ -47,6 +56,7 @@ a { text-decoration: none; color: inherit; }
 .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
 .dot-gray   { background: #CBD5E1; }
 .dot-green  { background: #22C55E; animation: pulse 1.5s infinite; }
+.dot-yellow { background: #F59E0B; animation: pulse 1.5s infinite; }
 .dot-red    { background: #EF4444; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
 
@@ -55,9 +65,11 @@ a { text-decoration: none; color: inherit; }
 .form-label { display: block; font-weight: 600; font-size: .88rem; color: #475569; margin-bottom: 10px; }
 
 .service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.service-chip { height: 100%; display: block; }
 .service-chip input { display: none; }
 .service-chip span {
-  display: block; text-align: center;
+  display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+  height: 100%;
   padding: 10px 4px; border-radius: 10px;
   border: 2px solid #E2E8F0; font-size: .82rem; cursor: pointer;
   background: #F8FAFC; transition: all .15s;
@@ -81,12 +93,17 @@ a { text-decoration: none; color: inherit; }
 .btn-primary {
   display: block; width: 100%;
   background: #2563EB; color: #fff;
-  border: none; border-radius: 12px;
-  padding: 16px; font-size: 1rem; font-weight: 700;
-  cursor: pointer; transition: background .15s;
+  border: none; border-radius: 14px;
+  padding: 16px; font-size: 1.05rem; font-weight: 700;
+  cursor: pointer; transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .btn-primary:disabled { background: #94A3B8; cursor: not-allowed; }
-.btn-primary:not(:disabled):hover { background: #1D4ED8; }
+.btn-primary:not(:disabled):hover { 
+  background: #1D4ED8; 
+  transform: translateY(-2px); 
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+}
+.btn-primary:not(:disabled):active { transform: scale(0.98); }
 
 .btn-outline {
   background: #fff; border: 1.5px solid #CBD5E1;
@@ -101,12 +118,17 @@ a { text-decoration: none; color: inherit; }
 }
 
 /* ── Info Cards ── */
-.info-cards { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.info-cards { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
 .info-card {
-  display: flex; align-items: center; gap: 14px;
-  background: #fff; border-radius: 12px; padding: 14px 16px;
-  box-shadow: 0 1px 6px rgba(0,0,0,.06);
+  display: flex; align-items: flex-start; gap: 14px;
+  background: rgba(255, 255, 255, 0.85); 
+  backdrop-filter: blur(8px);
+  border-radius: 16px; padding: 18px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.04);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  transition: transform 0.2s;
 }
+.info-card:hover { transform: translateY(-2px); }
 .info-icon { font-size: 1.5rem; }
 .info-text { display: flex; flex-direction: column; }
 .info-text strong { font-size: .9rem; color: #1E293B; }
@@ -125,11 +147,14 @@ a { text-decoration: none; color: inherit; }
 
 /* ── Result Card ── */
 .result-card {
-  background: #fff; border-radius: 16px; padding: 20px;
-  box-shadow: 0 2px 12px rgba(0,0,0,.08);
-  margin-bottom: 14px; border: 2px solid transparent;
+  background: rgba(255, 255, 255, 0.95); 
+  border-radius: 20px; padding: 24px;
+  box-shadow: 0 6px 24px rgba(37, 99, 235, 0.08);
+  margin-bottom: 16px; border: 2px solid transparent;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
-.result-card--top { border-color: #2563EB; }
+.result-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(37, 99, 235, 0.12); }
+.result-card--top { border-color: #2563EB; background: rgba(255, 255, 255, 1); }
 
 .result-rank { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .rank-badge { font-size: .85rem; font-weight: 700; color: #2563EB; }
@@ -153,7 +178,7 @@ a { text-decoration: none; color: inherit; }
 /* ── Score Bars ── */
 .score-bars { margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; }
 .score-row { display: flex; align-items: center; gap: 8px; }
-.score-label { font-size: .75rem; color: #64748B; width: 52px; flex-shrink: 0; }
+.score-label { font-size: .75rem; color: #64748B; width: 90px; flex-shrink: 0; white-space: nowrap; }
 .score-bar-wrap { flex: 1; background: #F1F5F9; border-radius: 4px; height: 8px; overflow: hidden; }
 .score-bar        { height: 100%; background: #22C55E; border-radius: 4px; transition: width .4s; }
 .score-bar--blue  { background: #2563EB; }
@@ -188,4 +213,50 @@ a { text-decoration: none; color: inherit; }
   padding: 12px 16px;
   margin-bottom: 16px;
   font-size: .88rem;
+}
+
+/* ── 저시력자 큰 글씨 모드 (더욱 확대) ── */
+body.large-font {
+  font-size: 20px;
+}
+body.large-font .hero-title         { font-size: 2.4rem; }
+body.large-font .hero-desc          { font-size: 1.250rem; line-height: 1.8; }
+body.large-font .form-label         { font-size: 1.2rem; }
+body.large-font .service-chip span    { font-size: 1.15rem; padding: 16px 8px; }
+body.large-font .mode-chip span     { font-size: 1.2rem; padding: 16px 20px; }
+body.large-font .btn-primary        { font-size: 1.4rem; padding: 22px; border-radius: 18px; }
+body.large-font .result-name        { font-size: 1.5rem; }
+body.large-font .result-address,
+body.large-font .result-phone       { font-size: 1.1rem; }
+body.large-font .metric-value       { font-size: 1.7rem; }
+body.large-font .metric-label       { font-size: 1.0rem; }
+body.large-font .score-label        { font-size: 1.1rem; width: 130px; }
+body.large-font .score-num          { font-size: 1.1rem; width: 48px; }
+body.large-font .rank-badge         { font-size: 1.2rem; }
+body.large-font .tag                { font-size: 1.1rem; padding: 6px 16px; }
+body.large-font .waiting-label      { font-size: 1.2rem; }
+body.large-font .btn-map            { font-size: 1.2rem; padding: 16px; }
+body.large-font .score-bar-wrap     { height: 16px; }
+body.large-font label[for="debugModeToggle"],
+body.large-font .header-sub         { font-size: 1.1rem; }
+body.large-font .logo               { font-size: 1.6rem; }
+
+/* ── 부드러운 전환 효과 ── */
+body { transition: background-color 0.3s ease, color 0.3s ease; }
+.card, .btn-primary, .service-chip span, .mode-chip span, .tag, .result-card {
+  transition: all 0.2s ease;
+}
+
+/* ── AI 채팅창 큰 글씨 대응 ── */
+body.large-font #aiChatBox      { font-size: 1.1rem; max-height: 400px; }
+body.large-font #aiInput        { font-size: 1.1rem; padding: 14px; }
+body.large-font #aiBtn          { font-size: 1.1rem; }
+
+/* ── 헤더 버튼 호버 강화 ── */
+#largeFontBtn:hover {
+  background: rgba(255,255,255,0.25) !important;
+  transform: translateY(-1px);
+}
+#largeFontBtn:active {
+  transform: translateY(1px);
 }

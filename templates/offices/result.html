@@ -8,12 +8,7 @@
   <a href="/" class="btn-back">← 다시 검색</a>
   <div class="result-meta">
     <span class="tag">{{ selected_service }}</span>
-    <span class="tag tag-mode">
-      {% if mode == 'FAST' %}⚡ 빠른 처리 우선
-      {% elif mode == 'NEAR' %}📍 가까운 곳 우선
-      {% else %}⚖️ 균형 추천
-      {% endif %}
-    </span>
+    <span class="tag tag-mode">🚗 빠른 길 안내 (자차 기준)</span>
   </div>
   <h2 class="result-title">추천 민원실 TOP {{ results|length }}</h2>
   <p class="result-sub">실시간 대기현황 기준 · 방금 전 업데이트</p>
@@ -25,12 +20,18 @@
 </div>
 {% endif %}
 
+{% if fallback_msg %}
+<div class="alert alert-info" style="margin-bottom: 20px; border-left: 4px solid #3b82f6; background-color: #eff6ff; color: #1e40af; padding: 12px 16px; border-radius: 8px; font-size: 0.9rem; line-height: 1.5;">
+  💡 <strong>안내:</strong> {{ fallback_msg }}
+</div>
+{% endif %}
+
 {% if results %}
   {% for office in results %}
   <div class="result-card {% if office.rank == 1 %}result-card--top{% endif %}">
     <div class="result-rank">
       <span class="rank-badge">{{ office.badge }}</span>
-      <span class="rank-score">{{ office.scores.total }}점</span>
+      <span class="rank-score">총 {{ office.times.total }}분 소요</span>
     </div>
 
     <div class="result-name">{{ office.name }}</div>
@@ -42,8 +43,8 @@
     <!-- 핵심 지표 3종 -->
     <div class="metrics">
       <div class="metric">
-        <div class="metric-value {% if office.waiting_count == 0 %}green{% elif office.waiting_count <= 7 %}yellow{% else %}red{% endif %}">
-          {{ office.waiting_count }}명
+        <div class="metric-value {% if office.waiting_count == -1 %}gray{% elif office.waiting_count == 0 %}green{% elif office.waiting_count <= 7 %}yellow{% else %}red{% endif %}">
+          {% if office.waiting_count == -1 %}❌{% else %}{{ office.waiting_count }}명{% endif %}
         </div>
         <div class="metric-label">현재 대기</div>
       </div>
@@ -60,28 +61,22 @@
     <!-- 대기 상태 라벨 -->
     <div class="waiting-label">{{ office.waiting_label }}</div>
 
-    <!-- 점수 분포 바 -->
-    <div class="score-bars">
+    <!-- 소요시간 타임라인 바 -->
+    <div class="score-bars" style="margin-top: 15px;">
       <div class="score-row">
-        <span class="score-label">대기인원</span>
+        <span class="score-label">🚗 카카오내비 이동</span>
         <div class="score-bar-wrap">
-          <div class="score-bar" style="width: {{ office.scores.waiting|floatformat:0 }}%"></div>
+          <!-- Max 60min as 100% just for visualization scaling, capping at 100% -->
+          <div class="score-bar score-bar--blue" style="width: {% widthratio office.times.driving 60 100 %}%"></div>
         </div>
-        <span class="score-num">{{ office.scores.waiting }}점</span>
+        <span class="score-num">{{ office.times.driving }}분</span>
       </div>
       <div class="score-row">
-        <span class="score-label">거리</span>
+        <span class="score-label">👥 예상 대기현황</span>
         <div class="score-bar-wrap">
-          <div class="score-bar score-bar--blue" style="width: {{ office.scores.distance|floatformat:0 }}%"></div>
+          <div class="score-bar score-bar--purple" style="width: {% widthratio office.times.waiting 60 100 %}%"></div>
         </div>
-        <span class="score-num">{{ office.scores.distance }}점</span>
-      </div>
-      <div class="score-row">
-        <span class="score-label">운영시간</span>
-        <div class="score-bar-wrap">
-          <div class="score-bar score-bar--purple" style="width: {{ office.scores.time|floatformat:0 }}%"></div>
-        </div>
-        <span class="score-num">{{ office.scores.time }}점</span>
+        <span class="score-num">{{ office.times.waiting }}분</span>
       </div>
     </div>
 

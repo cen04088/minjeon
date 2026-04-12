@@ -4,12 +4,34 @@
 {% block content %}
 <div class="hero">
   <h1 class="hero-title">지금 가장 빠른 민원실은?</h1>
-  <p class="hero-desc">위치를 감지하고 민원 종류를 선택하면<br>대기가 가장 짧은 민원실을 추천해 드려요</p>
+  <p class="hero-desc">위치를 감지하고 민원 종류를 선택하면<br>빠르게 업무를 볼 수 있는 민원실을 추천해 드려요</p>
 </div>
 
 {% if error %}
 <div class="alert alert-error">⚠️ {{ error }}</div>
 {% endif %}
+
+<!-- AI 민원 서류 도우미 -->
+<div class="card ai-helper-card" style="margin-bottom: 24px; position: relative; border-color: #e5e7eb;">
+  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+    <div style="font-size: 1.5rem;">🤖</div>
+    <div>
+      <h3 style="margin: 0; font-size: 1.1rem; color: #111827;">민원 서류 도우미</h3>
+      <p style="margin: 0; font-size: 0.85rem; color: #6b7280;">방문 전 필요한 준비물을 자유롭게 물어보세요!</p>
+    </div>
+  </div>
+  <div id="aiChatBox"
+    style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; max-height: 250px; overflow-y: auto; margin-bottom: 12px; display: none; font-size: 0.9rem; line-height: 1.5;">
+    <!-- Messages will appear here -->
+  </div>
+  <div style="display: flex; gap: 8px;">
+    <input type="text" id="aiInput" placeholder="예: 여권 발급하려는데 뭐 가져가야 해?"
+      style="flex: 1; border: 1px solid #d1d5db; border-radius: 6px; padding: 10px; font-size: 0.9rem; outline: none;"
+      onkeypress="if(event.key==='Enter') askAI()">
+    <button type="button" class="btn-primary" onclick="askAI()" id="aiBtn"
+      style="white-space: nowrap; width: auto; padding: 0 16px;">물어보기</button>
+  </div>
+</div>
 
 <div class="card search-card">
   <!-- 위치 감지 -->
@@ -21,44 +43,85 @@
     <button class="btn-outline" onclick="getLocation()">📍 위치 재탐색</button>
   </div>
 
-  <form action="/recommend/" method="GET" id="searchForm">
+  <form id="searchForm">
     <input type="hidden" name="lat" id="lat">
     <input type="hidden" name="lng" id="lng">
 
-    <!-- 민원 업무 선택 -->
-    <div class="form-group">
-      <label class="form-label">처리할 민원 업무</label>
-      <div class="service-grid">
-        {% for svc in service_choices %}
-        <label class="service-chip">
-          <input type="radio" name="service" value="{{ svc }}">
-          <span>{{ svc }}</span>
+    <!-- 검색 모드 선택 -->
+    <div class="form-group" style="margin-bottom: 20px;">
+      <label class="form-label">탐색 방식</label>
+      <div style="display: flex; gap: 10px; align-items: stretch;">
+        <label class="mode-chip" style="flex: 1; margin: 0; padding: 0;">
+          <input type="radio" name="search_mode" value="GENERAL" checked>
+          <span
+            style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; box-sizing: border-box; text-align: center;">🌐
+            일반 모드<br><small style="font-weight: normal; margin-top: 4px; line-height: 1.3;">(추천)</small></span>
         </label>
-        {% endfor %}
-        <label class="service-chip">
-          <input type="radio" name="service" value="" checked>
-          <span>전체</span>
+        <label class="mode-chip" style="flex: 1; margin: 0; padding: 0;">
+          <input type="radio" name="search_mode" value="PREDICTION">
+          <span
+            style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; box-sizing: border-box; text-align: center;">⏱️
+            예측 모드<br><small style="font-weight: normal; margin-top: 4px; line-height: 1.3;">(현재 제공중인 기관만
+              가능)</small></span>
         </label>
       </div>
     </div>
 
-    <!-- 추천 모드 선택 -->
+    <!-- 민원 업무 선택 -->
     <div class="form-group">
-      <label class="form-label">추천 방식</label>
-      <div class="mode-row">
-        <label class="mode-chip">
-          <input type="radio" name="mode" value="SMART" checked>
-          <span>⚖️ 균형 (기본)</span>
-        </label>
-        <label class="mode-chip">
-          <input type="radio" name="mode" value="FAST">
-          <span>⚡ 빠른 처리 우선</span>
-        </label>
-        <label class="mode-chip">
-          <input type="radio" name="mode" value="NEAR">
-          <span>📍 가까운 곳 우선</span>
-        </label>
+      <label class="form-label">처리할 민원 업무</label>
+
+      <!-- 일반 모드 서비스 목록 -->
+      <div id="generalServicePanel">
+        {% for category, tasks in service_choices.items %}
+        <div class="category-block" style="margin-bottom: 15px;">
+          <div style="font-size: 0.9rem; color: #4b5563; font-weight: 600; margin-bottom: 8px;">🔹 {{ category }}</div>
+          <div class="service-grid">
+            {% for svc in tasks %}
+            <label class="service-chip">
+              {% if forloop.parentloop.first and forloop.first %}
+              <input type="radio" name="service" value="{{ svc }}" checked>
+              {% else %}
+              <input type="radio" name="service" value="{{ svc }}">
+              {% endif %}
+              <span>{{ svc }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
       </div>
+
+      <!-- 예측 모드 서비스 목록 (기본 숨김) -->
+      <div id="predictionServicePanel" style="display: none;">
+        {% for category, tasks in prediction_service_choices.items %}
+        <div class="category-block" style="margin-bottom: 15px;">
+          <div style="font-size: 0.9rem; color: #4b5563; font-weight: 600; margin-bottom: 8px;">🔹 {{ category }}</div>
+          <div class="service-grid">
+            {% for svc in tasks %}
+            <label class="service-chip">
+              {% if forloop.parentloop.first and forloop.first %}
+              <input type="radio" name="service_pred" value="{{ svc }}" checked>
+              {% else %}
+              <input type="radio" name="service_pred" value="{{ svc }}">
+              {% endif %}
+              <span>{{ svc }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- 가상 테스트 모드 -->
+    <div
+      style="margin-bottom: 16px; display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #fef9c3; border-radius: 10px; border: 1px solid #fde68a;">
+      <input type="checkbox" name="debug_mode" id="debugModeToggle" value="1"
+        style="width: 16px; height: 16px; cursor: pointer; accent-color: #d97706;">
+      <label for="debugModeToggle" style="font-size: 0.85rem; cursor: pointer; color: #92400e;">
+        🧪 <strong>가상 테스트 모드</strong> — 랜덤 대기인원으로 예측 모드 시뮬레이션 (휴일·야간 테스트용)
+      </label>
     </div>
 
     <button type="submit" class="btn-primary" id="submitBtn" disabled>
@@ -67,27 +130,26 @@
   </form>
 </div>
 
+<!-- 검색 결과가 동적으로 렌더링될 영역 -->
+<div id="resultContainer"></div>
+
+
 <!-- 실시간 대기현황 미리보기 안내 -->
 <div class="info-cards">
   <div class="info-card">
-    <div class="info-icon">⚡</div>
-    <div class="info-text">
-      <strong>실시간 대기현황</strong>
-      <span>지금 이 순간 대기인원 반영</span>
-    </div>
-  </div>
-  <div class="info-card" id="smartScoringCard">
-    <div class="info-icon">📊</div>
-    <div class="info-text">
-      <strong>스마트 스코어링</strong>
-      <span>거리·대기·운영시간 종합 분석</span>
-    </div>
-  </div>
-  <div class="info-card">
     <div class="info-icon">🗺️</div>
-    <div class="info-text">
-      <strong>전국 민원실 통합</strong>
-      <span style="font-size: 0.85rem; line-height: 1.4; word-break: keep-all; color: #6b7280; margin-top: 4px; display: block;">현재 서비스 중: {{ supported_regions|join:", " }} 등 41개 기관</span>
+    <div class="info-text" style="width: 100%;">
+      <strong>예측 모드 가능지역</strong>
+      <div
+        style="font-size: 0.85rem; line-height: 1.5; word-break: keep-all; margin-top: 8px; display: flex; flex-direction: column; gap: 6px;">
+        <div style="color: #6b7280; margin-bottom: 4px;">현재 서비스 중 ({{ total_offices }}개 기관)</div>
+        {% for province, regions in grouped_regions.items %}
+        <div style="display: flex; align-items: flex-start; gap: 8px;">
+          <span style="font-weight: 600; color: #4b5563; min-width: 60px; flex-shrink: 0;">{{ province }}</span>
+          <span style="color: #6b7280;">{{ regions|join:", " }}</span>
+        </div>
+        {% endfor %}
+      </div>
     </div>
   </div>
 </div>
@@ -95,6 +157,8 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Markdown 렌더링 라이브러리 -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
   // 페이지 로드 시 자동 위치 탐색
   window.addEventListener('load', getLocation);

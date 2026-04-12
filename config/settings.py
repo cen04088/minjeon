@@ -84,3 +84,9 @@ PUBLIC_DATA_API_KEY = os.environ.get('PUBLIC_DATA_API_KEY', '')
 # data.go.kr 에서 발급받은 실제 엔드포인트로 교체하세요
 WAITING_API_URL     = os.environ.get('WAITING_API_URL',     'https://api.odcloud.kr/api/WAITING_ENDPOINT')
 OFFICE_INFO_API_URL = os.environ.get('OFFICE_INFO_API_URL', 'https://api.odcloud.kr/api/OFFICE_ENDPOINT')
+
+# 카카오내비 REST API 키 (총 소요시간 계산용)
+KAKAO_REST_API_KEY = os.environ.get('KAKAO_REST_API_KEY', '')
+
+# OpenAI API 키 (서류 도우미 챗봇용)
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')

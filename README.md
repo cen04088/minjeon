@@ -1,126 +1,95 @@
-# 🏛️ 민원ON — 실시간 민원실 대기현황 통합 서비스
+# 🏛️ 민원ON (Minwon ON)
+### "당신의 시간은 소중하니까, 대기 시간까지 계산하는 똑똑한 민원 안내"
 
-> 전국 지자체 민원실 실시간 대기현황을 한 곳에서 조회하고,  
-> 위치 기반 스코어링 알고리즘으로 가장 빠른 민원실을 추천하는 모바일 웹서비스
-
----
-
-## 🚀 빠른 시작
-
-### 로컬 실행
-```bash
-# 1. 의존성 설치
-pip install -r requirements.txt
-
-# 2. 환경변수 설정
-cp .env.example .env
-# .env 파일에 API 키 입력
-
-# 3. DB 마이그레이션 (PostgreSQL 또는 SQLite)
-python manage.py migrate
-
-# 4. 서버 실행
-python manage.py runserver
-```
-
-### Railway 배포
-```bash
-git init
-git add .
-git commit -m "init: 민원ON 프로젝트"
-git remote add origin https://github.com/YOUR_ID/minjeon.git
-git push -u origin main
-```
-이후 Railway에서 GitHub 연결 → PostgreSQL 추가 → 환경변수 설정
+**2026 전국 통합데이터 활용 공모전 출품작**  
+전국 지자체 민원실의 실시간 대기현황과 위치 기반 이동 시간을 결합하여, 시민들에게 **'가장 빠르게 민원을 처리할 수 있는 장소'**를 추천하는 지능형 모바일 웹 플랫폼입니다.
 
 ---
 
-## ⚙️ 환경변수 (.env)
+## 🌟 핵심 가치 (Core Values)
+현대인의 **'시간 빈곤(Time Poor)'** 문제를 공공데이터로 해결합니다. 단순히 가까운 곳이 아닌, **[이동 시간 + 대기 시간]**이 최소화되는 최적의 장소를 AI 알고리즘이 실시간으로 도출합니다.
 
-| 변수명 | 설명 |
-|---|---|
-| `SECRET_KEY` | Django 시크릿 키 (랜덤 문자열) |
-| `DEBUG` | 개발: `True` / 배포: `False` |
-| `PUBLIC_DATA_API_KEY` | data.go.kr 발급 API 키 |
-| `WAITING_API_URL` | 민원실 실시간 대기현황 API 엔드포인트 |
-| `OFFICE_INFO_API_URL` | 민원실 기본정보 API 엔드포인트 |
-| `PGDATABASE` / `PGUSER` / ... | PostgreSQL 접속 정보 (Railway 자동 주입) |
+## ✨ 주요 기능 (Key Features)
 
----
+### 1. 지능형 듀얼 탐색 모드
+*   **⏱️ 실시간 예측 모드 (Premium):** 42개 주요 지자체(서울, 경기 등)의 실시간 번호표 데이터를 연동하여 1분 단위의 대기 현황을 반영합니다.
+*   **🌐 전국 일반 모드 (Standard):** 카카오 로컬 검색 API를 통해 전국 모든 행정복지센터와 시·구청을 탐색합니다. (예측 데이터 부재 시 자동 폴백 지원)
 
-## 🔌 API 연동 가이드
+### 2. 🚗 카카오 모빌리티 엔진 통합
+*   단순 직선 거리가 아닌, 실제 도로 상황을 반영한 **자동차 주행 시간**을 산출합니다.
+*   도보 및 대중교통 예상 소요 시간을 분석하여 다각도의 이동 편의성을 제공합니다.
 
-`offices/services.py` 의 두 함수를 실제 API 응답 구조에 맞게 수정합니다.
+### 3. 🤖 AI 민원 준비물 도우미 (Powered by Gemini)
+*   "여권 발급할 때 뭐 필요해?"와 같은 자연어 질문에 즉각 대응합니다.
+*   기관 방문 전 필수 서류를 미리 안내하여 **'서류 누락으로 인한 재방문(헛걸음)'**을 원천 차단합니다.
 
-### fetch_office_list() — 민원실 기본정보
-```python
-# data.go.kr API 응답 예시에 맞게 키 이름 수정
-'id':         item.get('민원실ID'),     # ← 실제 응답 키로 교체
-'name':       item.get('민원실명'),
-'lat':        float(item.get('위도')),
-'lng':        float(item.get('경도')),
-'close_time': item.get('운영종료시간'),
-'services':   item.get('취급업무', '').split(','),
-```
-
-### fetch_waiting_status() — 실시간 대기현황
-```python
-service_type  = item.get('업무유형')   # ← 실제 응답 키로 교체
-waiting_count = int(item.get('대기인원'))
-```
-
-> API 키가 없거나 오류 발생 시 서울 6개 구청 목 데이터로 자동 대체됩니다.
+### 4. 📱 모바일 퍼스트 & PWA
+*   별도의 앱 설치 없이 웹에서 즉시 실행 가능한 **PWA(Progressive Web App)** 기술을 적용했습니다.
+*   홈 화면 추가 기능을 통해 앱처럼 편리하게 접근할 수 있습니다.
 
 ---
 
-## 📡 서비스 엔드포인트
-
-| URL | 설명 |
-|---|---|
-| `GET /` | 메인 페이지 (위치 탐지 + 업무 선택) |
-| `GET /recommend/` | 추천 결과 페이지 |
-| `GET /api/recommend/` | 추천 결과 JSON API |
-| `GET /api/waiting/` | 특정 민원실 대기현황 JSON |
-
----
-
-## 🧮 추천 스코어링 로직
-
-```
-종합점수 (100점) =
-  대기인원 점수 (40점)   — 대기 0명=40점, 25명 초과=0점
-+ 거리 점수     (30점)   — 500m이내=30점, 10km초과=0점
-+ 운영시간 점수 (20점)   — 2시간이상여유=20점, 종료=제외
-+ 업무가용 점수 (10점)   — 해당업무취급=10점, 미취급=제외
-```
-
-**추천 모드 3종:**
-- ⚖️ **SMART** — 균형 (기본)
-- ⚡ **FAST** — 대기인원 가중치 1.5배
-- 📍 **NEAR** — 거리 가중치 1.5배
+## 🛠️ 기술 스택 (Tech Stack)
+*   **Backend:** Python 3.10+, Django 4.2
+*   **Frontend:** Vanilla JavaScript (ES6+), Modern CSS3 (Glassmorphism UI)
+*   **AI/LLM:** Google Gemini 1.5/2.5 Flash
+*   **Storage:** SQLite (Development) / PostgreSQL (Production)
+*   **APIs:** 
+    *   공공데이터포털 (실시간 대기현황, 민원실 정보)
+    *   Kakao Mobility (Directions API)
+    *   Kakao Local (Keyword Search API)
 
 ---
 
-## 🗂️ 프로젝트 구조
+## ⚙️ 환경 설정 (.env)
+본 프로젝트를 구동하기 위해 다음 API 키들이 필요합니다.
 
+```ini
+# Django
+SECRET_KEY=your_secret_key
+DEBUG=True
+
+# 공공데이터 API (data.go.kr)
+PUBLIC_DATA_API_KEY=your_key
+WAITING_API_URL=실시간_대기현황_엔드포인트
+OFFICE_INFO_API_URL=민원실_기본정보_엔드포인트
+
+# Kakao Developers
+KAKAO_REST_API_KEY=your_rest_api_key
+KAKAO_JS_API_KEY=your_javascript_key
+
+# Generative AI
+GEMINI_API_KEY=your_gemini_key
 ```
-minjeon/
-├── config/
-│   ├── settings.py      # Django 설정
-│   └── urls.py
-├── offices/
-│   ├── services.py      # API 연동 + 추천 알고리즘 (핵심)
-│   ├── views.py         # 뷰 + REST API
-│   └── urls.py
-├── templates/
-│   ├── base.html
-│   └── offices/
-│       ├── index.html   # 메인 (GPS + 업무선택)
-│       └── result.html  # TOP3 추천 결과
-├── static/
-│   ├── css/style.css
-│   └── js/main.js       # GPS 위치 탐지
-├── Procfile             # Railway 실행 명령
-├── railway.toml
-└── requirements.txt
-```
+
+---
+
+## 📈 추천 알고리즘 (Total-Time Minimization)
+민원ON은 단순한 거리순 정렬을 지양하고, 다음의 수식으로 최적의 장소를 결정합니다.
+
+$$ \text{Total Time} = \text{Driving Duration (Kakao)} + (\text{Waiting Count} \times 3 \text{ min}) $$
+
+*   **1순위 (🏆 최단시간):** 총 소요 시간이 가장 적은 기관
+*   **2순위 (✅ 차선책):** 안정적인 업무 처리가 가능한 대기 인원 적은 기관
+
+---
+
+## 🏗️ 설치 및 실행 안내 (Setup)
+
+1. **저장소 클론 및 패키지 설치**
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. **데이터베이스 마이그레이션**
+   ```bash
+   python manage.py migrate
+   ```
+3. **로컬 서버 기동**
+   ```bash
+   python manage.py runserver
+   ```
+
+---
+
+## ✉️ 문의 및 피드백
+본 서비스는 열린 데이터를 통해 국민의 삶의 질을 높이기 위해 끊임없이 진화하고 있습니다. 기획안 및 기술 문의는 개발팀으로 연락 주시기 바랍니다.

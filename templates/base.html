@@ -5,14 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}민원ON - 실시간 민원실 대기현황{% endblock %}</title>
   {% load static %}
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="{% static 'manifest.json' %}">
+  <!-- Pretendard Font -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   <meta name="theme-color" content="#2563EB">
+  <link rel="apple-touch-icon" href="{% static 'img/icon-192.png' %}">
 </head>
 <body>
+  <!-- 큰 글씨 모드: 페이지 깜빡임 없이 즉시 적용 -->
+  <script>
+    if (localStorage.getItem('largeFont') === '1') document.body.classList.add('large-font');
+  </script>
   <header class="header">
     <div class="header-inner">
       <a href="/" class="logo">🏛️ 민원ON</a>
       <span class="header-sub">전국 민원실 실시간 대기현황</span>
+      <button id="largeFontBtn" onclick="toggleLargeFont()" title="저시력자 큰 글씨 모드"
+        style="margin-left: auto; background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.4); border-radius: 8px; color: #fff; padding: 6px 12px; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; white-space: nowrap; transition: background 0.2s;">
+        <span id="largeFontLabel">큰 글씨 보기</span>
+      </button>
     </div>
   </header>
 
@@ -25,6 +38,29 @@
   </footer>
 
   <script src="{% static 'js/main.js' %}"></script>
+  <script>
+    function toggleLargeFont() {
+      const isLarge = document.body.classList.toggle('large-font');
+      localStorage.setItem('largeFont', isLarge ? '1' : '0');
+      updateLargeFontBtn(isLarge);
+    }
+    function updateLargeFontBtn(isLarge) {
+      const label = document.getElementById('largeFontLabel');
+      const btn = document.getElementById('largeFontBtn');
+      if (!label) return;
+      if (isLarge) {
+        label.textContent = '기본으로 보기';
+        btn.style.background = 'rgba(255,255,255,0.35)';
+      } else {
+        label.textContent = '큰 글씨 보기';
+        btn.style.background = 'rgba(255,255,255,0.15)';
+      }
+    }
+    // 초기 버튼 상태 동기화
+    document.addEventListener('DOMContentLoaded', () => {
+      updateLargeFontBtn(document.body.classList.contains('large-font'));
+    });
+  </script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>
