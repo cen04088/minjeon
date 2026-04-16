@@ -42,6 +42,7 @@ def recommend(request):
         lng         = float(request.GET.get('lng', 0))
         service     = request.GET.get('service', '')
         search_mode = request.GET.get('search_mode', 'GENERAL')
+        transport_mode = request.GET.get('transport_mode', 'driving')
         debug_mode  = request.GET.get('debug_mode', '0') == '1'
         fallback_msg = None
 
@@ -52,13 +53,13 @@ def recommend(request):
             })
 
         if search_mode == 'PREDICTION':
-            results = recommend_offices_prediction(lat, lng, service, debug_mode=debug_mode)
+            results = recommend_offices_prediction(lat, lng, service, transport_mode=transport_mode, debug_mode=debug_mode)
             if not results:
-                results = recommend_offices_general(lat, lng, service)
+                results = recommend_offices_general(lat, lng, service, transport_mode=transport_mode)
                 search_mode = 'GENERAL'
                 fallback_msg = "실시간 대기현황 데이터가 없는 지역이거나 서버 오류로 인해, '일반 모드' 검색 결과로 자동 전환되었습니다."
         else:
-            results = recommend_offices_general(lat, lng, service)
+            results = recommend_offices_general(lat, lng, service, transport_mode=transport_mode)
 
         return render(request, 'offices/result.html', {
             'results':          results,
@@ -83,17 +84,18 @@ def api_recommend(request):
         lng         = float(request.GET.get('lng', 0))
         service     = request.GET.get('service', '')
         search_mode = request.GET.get('search_mode', 'GENERAL')
+        transport_mode = request.GET.get('transport_mode', 'driving')
         debug_mode  = request.GET.get('debug_mode', '0') == '1'
         fallback_msg = None
         
         if search_mode == 'PREDICTION':
-            results = recommend_offices_prediction(lat, lng, service, debug_mode=debug_mode)
+            results = recommend_offices_prediction(lat, lng, service, transport_mode=transport_mode, debug_mode=debug_mode)
             if not results:
-                results = recommend_offices_general(lat, lng, service)
+                results = recommend_offices_general(lat, lng, service, transport_mode=transport_mode)
                 search_mode = 'GENERAL'
                 fallback_msg = "예측 모드 데이터가 없어 일반 모드로 전환되었습니다."
         else:
-            results = recommend_offices_general(lat, lng, service)
+            results = recommend_offices_general(lat, lng, service, transport_mode=transport_mode)
             
         return JsonResponse({
             'status': 'ok', 

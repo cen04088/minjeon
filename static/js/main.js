@@ -348,6 +348,12 @@ function renderResults(results, fallbackMsg = null) {
 
     </div>`;
 
+  } else if (results[0].waiting_count >= 15) {
+
+    html += `
+    <div class="alert alert-info" style="margin-bottom: 20px; border-left: 4px solid #10b981; background-color: #ecfdf5; color: #047857; padding: 12px 16px; border-radius: 8px; font-size: 0.9rem; line-height: 1.5;">
+      💡 <strong>시간 절약 꿀팁:</strong> 현재 가장 빠른 곳도 대기인원이 15명 이상으로 혼잡합니다. 급한 업무가 아니라면 <strong>오후 시간대나 내일 오전</strong>에 방문하시면 대기 시간을 아낄 수 있어요!
+    </div>`;
   }
 
   
@@ -458,6 +464,14 @@ if ('serviceWorker' in navigator) {
 
   });
 
+}
+
+function setAiInput(msg) {
+  const inputEl = document.getElementById("aiInput");
+  if (inputEl) {
+    inputEl.value = msg;
+    askAI();
+  }
 }
 
 

@@ -226,6 +226,7 @@ def recommend_offices_prediction(
     user_lat: float,
     user_lng: float,
     selected_service: str = '',
+    transport_mode: str = 'driving',
     top_n: int = 3,
     debug_mode: bool = False,
 ) -> list:
@@ -305,12 +306,19 @@ def recommend_offices_prediction(
             
     results = []
     for vo in processed_offices:
-        total_time_min = vo['driving_time_min'] + vo['expected_wait_min']
         office = vo['office']
         
         dist_km = vo['distance_km']
         walking_min = round((dist_km / 4.0 * 60) * 1.5)          # (거리÷4km/h) × 1.5
         transit_min = round((dist_km / 20.0 * 60 + 5) * 1.5)     # (거리÷20km/h + 환승5분) × 1.5
+
+        travel_min = vo['driving_time_min']
+        if transport_mode == 'walking':
+            travel_min = walking_min
+        elif transport_mode == 'transit':
+            travel_min = transit_min
+            
+        total_time_min = travel_min + vo['expected_wait_min']
 
         results.append({
             'mode': 'PREDICTION',
@@ -351,6 +359,7 @@ def recommend_offices_general(
     user_lat: float,
     user_lng: float,
     selected_service: str = '',
+    transport_mode: str = 'driving',
     top_n: int = 3,
 ) -> list:
     """일반 모드 (전국 대상, 카카오 로컬 검색) - 병렬 최적화"""
@@ -393,6 +402,12 @@ def recommend_offices_general(
         walking_min = round((dist_km / 4.0 * 60) * 1.5)          # (거리÷4km/h) × 1.5
         transit_min = round((dist_km / 20.0 * 60 + 5) * 1.5)     # (거리÷20km/h + 환승5분) × 1.5
 
+        travel_min = driving_time_min
+        if transport_mode == 'walking':
+            travel_min = walking_min
+        elif transport_mode == 'transit':
+            travel_min = transit_min
+
         results.append({
             'mode': 'GENERAL',
             'id':             doc.get('id'),
@@ -413,7 +428,7 @@ def recommend_offices_general(
                 'walking':  walking_min,
                 'transit':  transit_min,
                 'waiting':  0,
-                'total':    round(driving_time_min),
+                'total':    round(travel_min),
             },
         })
         
