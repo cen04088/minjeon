@@ -47,7 +47,16 @@
       <span class="dot dot-gray"></span>
       <span id="locationText">위치를 가져오는 중...</span>
     </div>
-    <button class="btn-outline" onclick="getLocation()">📍 위치 재탐색</button>
+    <button class="btn-outline" onclick="getLocation()" type="button">📍 위치 재탐색</button>
+  </div>
+
+  <!-- 수동 위치 검색 -->
+  <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+    <input type="text" id="manualLocationInput" placeholder="예: 역삼동, 강남역, 멀티캠퍼스" 
+      style="flex: 1; border: 1px solid #d1d5db; border-radius: 6px; padding: 10px; font-size: 0.9rem; outline: none;"
+      onkeypress="if(event.key==='Enter') searchManualLocation(event)">
+    <button type="button" class="btn-outline" onclick="searchManualLocation()" id="manualLocationBtn"
+      style="white-space: nowrap; width: auto; padding: 0 16px;">🔍 직접 찾기</button>
   </div>
 
   <form id="searchForm">

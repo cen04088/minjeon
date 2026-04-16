@@ -7,5 +7,6 @@ urlpatterns = [
     path('api/recommend/',    views.api_recommend,  name='api_recommend'),
     path('api/waiting/',      views.api_waiting,    name='api_waiting'),
     path('api/check_region/', views.api_check_region, name='api_check_region'),
+    path('api/search_location/', views.api_search_location, name='api_search_location'),
     path('api/chat/',         views.api_chat,       name='api_chat'),
 ]

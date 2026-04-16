@@ -203,6 +203,20 @@ import json
 import os
 from django.views.decorators.csrf import csrf_exempt
 
+def api_search_location(request):
+    """GET /api/search_location/?q=키워드"""
+    query = request.GET.get('q', '').strip()
+    if not query:
+        return JsonResponse({'status': 'error', 'message': '검색어를 입력해주세요'}, status=400)
+        
+    from .services import search_kakao_location
+    result = search_kakao_location(query)
+    if result:
+        return JsonResponse({'status': 'ok', 'data': result})
+    else:
+        return JsonResponse({'status': 'error', 'message': '검색 결과를 찾을 수 없습니다.'}, status=404)
+
+
 @csrf_exempt
 def api_chat(request):
     """POST /api/chat/ → LLM (Gemini 2.5 Flash Lite) 응답"""

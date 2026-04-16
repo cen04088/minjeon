@@ -204,6 +204,35 @@ def search_kakao_local_offices(user_lat, user_lng, query):
         print("[Kakao Local Search Error]", e)
     return []
 
+def search_kakao_location(query: str):
+    """일반 검색어로 위경도 좌표 검색 (수동 위치 지정용)"""
+    cache_key = f"kakao_loc_search_{query}"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
+
+    api_key = getattr(settings, 'KAKAO_REST_API_KEY', '')
+    if not api_key:
+        return None
+        
+    url = "https://dapi.kakao.com/v2/local/search/keyword.json"
+    headers = {"Authorization": f"KakaoAK {api_key}"}
+    params = {"query": query, "size": 1}
+    try:
+        resp = requests.get(url, headers=headers, params=params, timeout=3)
+        if resp.status_code == 200:
+            docs = resp.json().get('documents', [])
+            if docs:
+                result = {
+                    'lat': float(docs[0].get('y', 0)),
+                    'lng': float(docs[0].get('x', 0)),
+                    'name': docs[0].get('place_name') or docs[0].get('address_name')
+                }
+                cache.set(cache_key, result, 3600)
+                return result
+    except Exception as e:
+        print("[Kakao Location Search Error]", e)
+    return None
 
 # ────────────────────────────────────────────────
 # 4. 메인 추천 함수

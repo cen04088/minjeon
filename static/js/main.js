@@ -196,6 +196,71 @@ function getLocation() {
 
 }
 
+async function searchManualLocation(e) {
+  if (e) e.preventDefault();
+  const inputEl = document.getElementById('manualLocationInput');
+  const query = inputEl.value.trim();
+  if (!query) {
+    alert("원하시는 장소나 주소를 입력해주세요.");
+    return;
+  }
+  
+  const statusEl = document.getElementById('locationStatus');
+  const textEl   = document.getElementById('locationText');
+  const btn = document.getElementById('manualLocationBtn');
+  const originalText = btn.innerHTML;
+  
+  btn.innerHTML = '⏳...';
+  btn.disabled = true;
+  
+  try {
+    const res = await fetch(`/api/search_location/?q=${encodeURIComponent(query)}`);
+    const json = await res.json();
+    
+    if (json.status === 'ok') {
+      const lat = json.data.lat.toFixed(6);
+      const lng = json.data.lng.toFixed(6);
+      
+      document.getElementById('lat').value = lat;
+      document.getElementById('lng').value = lng;
+      
+      const regionRes = await fetch(`/api/check_region/?lat=${lat}&lng=${lng}`);
+      const regionData = await regionRes.json();
+      
+      const predRadio = document.querySelector('input[name="search_mode"][value="PREDICTION"]');
+      const genRadio = document.querySelector('input[name="search_mode"][value="GENERAL"]');
+      
+      if (regionData.supported) {
+        textEl.innerHTML = `<strong>[${json.data.name}]</strong> (<span style="color: #22c55e; font-weight: 600;">일반, 예측 모드 가능</span>)`;
+        statusEl.querySelector('.dot').className = 'dot dot-green';
+        if (predRadio) {
+            predRadio.disabled = false;
+            const chip = predRadio.closest('.mode-chip');
+            if (chip) { chip.style.opacity = '1'; chip.style.cursor = 'pointer'; }
+        }
+      } else {
+        textEl.innerHTML = `<strong>[${json.data.name}]</strong> (<span style="color: #f59e0b; font-weight: 600;">일반 모드 가능</span>)`;
+        statusEl.querySelector('.dot').className = 'dot dot-yellow';
+        if (predRadio) {
+            predRadio.disabled = false;
+        }
+        if (genRadio) genRadio.checked = true;
+      }
+      
+      const submitBtn = document.getElementById('submitBtn');
+      if (submitBtn) submitBtn.disabled = false;
+      inputEl.value = ''; // Clear input on success
+    } else {
+      alert(json.message || "검색 결과를 찾을 수 없습니다.");
+    }
+  } catch (err) {
+    alert("검색 중 오류가 발생했습니다.");
+  } finally {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  }
+}
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
