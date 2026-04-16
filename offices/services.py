@@ -280,6 +280,11 @@ def recommend_offices_prediction(
         cso_id      = office['id']
         waiting_map = waiting_all.get(cso_id, {})
 
+        # --- [DEBUG] 서버 터미널 검증용 로그 출력 ---
+        if office['name'] in ['강남구청', '강서구청', '제주시청']: # 대표적인 곳 일부만 출력
+            print(f"▶ [{office['name']}] 선택서비스: {selected_service} | 키워드: {API_TASK_MAPPING.get(selected_service, [selected_service])}")
+            print(f"▶ 현재 API 수신된 전체 창구 현황: {waiting_map}")
+
         if selected_service and waiting_map:
             kws = API_TASK_MAPPING.get(selected_service, [selected_service])
             if not any(any(kw in nm for kw in kws) for nm in waiting_map.keys()):
