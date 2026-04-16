@@ -92,11 +92,11 @@ function getLocation() {
 
             if (predRadio) {
 
-                predRadio.disabled = true;
+                predRadio.disabled = false;
 
                 const chip = predRadio.closest('.mode-chip');
 
-                if (chip) { chip.style.opacity = '0.5'; chip.style.cursor = 'not-allowed'; }
+                if (chip) { chip.style.opacity = '1'; chip.style.cursor = 'pointer'; }
 
             }
 
