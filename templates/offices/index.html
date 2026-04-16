@@ -24,11 +24,18 @@
     style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; max-height: 250px; overflow-y: auto; margin-bottom: 12px; display: none; font-size: 0.9rem; line-height: 1.5;">
     <!-- Messages will appear here -->
   </div>
-  
-  <div class="ai-quick-chips" style="display: flex; gap: 8px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none;">
-    <button type="button" class="chip-btn" onclick="setAiInput('여권 발급 준비물 알려줘')" style="white-space: nowrap; padding: 6px 12px; background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; border-radius: 16px; font-size: 0.85rem; cursor: pointer; transition: all 0.2sease;">🛂 여권 발급</button>
-    <button type="button" class="chip-btn" onclick="setAiInput('전입신고 할 때 뭐 필요해?')" style="white-space: nowrap; padding: 6px 12px; background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; border-radius: 16px; font-size: 0.85rem; cursor: pointer; transition: all 0.2sease;">🏠 전입신고</button>
-    <button type="button" class="chip-btn" onclick="setAiInput('가족관계증명서 대리 발급')" style="white-space: nowrap; padding: 6px 12px; background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; border-radius: 16px; font-size: 0.85rem; cursor: pointer; transition: all 0.2sease;">📄 가족관계증명서</button>
+
+  <div class="ai-quick-chips"
+    style="display: flex; gap: 8px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none;">
+    <button type="button" class="chip-btn" onclick="setAiInput('여권 발급 준비물 알려줘')"
+      style="white-space: nowrap; padding: 6px 12px; background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; border-radius: 16px; font-size: 0.85rem; cursor: pointer; transition: all 0.2sease;">🛂
+      여권 발급</button>
+    <button type="button" class="chip-btn" onclick="setAiInput('전입신고 할 때 뭐 필요해?')"
+      style="white-space: nowrap; padding: 6px 12px; background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; border-radius: 16px; font-size: 0.85rem; cursor: pointer; transition: all 0.2sease;">🏠
+      전입신고</button>
+    <button type="button" class="chip-btn" onclick="setAiInput('가족관계증명서 대리 발급')"
+      style="white-space: nowrap; padding: 6px 12px; background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; border-radius: 16px; font-size: 0.85rem; cursor: pointer; transition: all 0.2sease;">📄
+      가족관계증명서</button>
   </div>
 
   <div style="display: flex; gap: 8px;">
@@ -52,7 +59,7 @@
 
   <!-- 수동 위치 검색 -->
   <div style="display: flex; gap: 8px; margin-bottom: 20px;">
-    <input type="text" id="manualLocationInput" placeholder="예: 역삼동, 강남역, 멀티캠퍼스" 
+    <input type="text" id="manualLocationInput" placeholder="예: 역삼동, 장흥면, 조치원읍"
       style="flex: 1; border: 1px solid #d1d5db; border-radius: 6px; padding: 10px; font-size: 0.9rem; outline: none;"
       onkeypress="if(event.key==='Enter') searchManualLocation(event)">
     <button type="button" class="btn-outline" onclick="searchManualLocation()" id="manualLocationBtn"
@@ -69,15 +76,21 @@
       <div style="display: flex; gap: 10px; align-items: stretch;">
         <label class="mode-chip" style="flex: 1; margin: 0; padding: 0;">
           <input type="radio" name="transport_mode" value="driving" checked>
-          <span style="display: flex; align-items: center; justify-content: center; height: 100%; box-sizing: border-box; text-align: center; font-size: 1rem; padding: 12px 0;">🚗 자동차</span>
+          <span
+            style="display: flex; align-items: center; justify-content: center; height: 100%; box-sizing: border-box; text-align: center; font-size: 1rem; padding: 12px 0;">🚗
+            자동차</span>
         </label>
         <label class="mode-chip" style="flex: 1; margin: 0; padding: 0;">
           <input type="radio" name="transport_mode" value="transit">
-          <span style="display: flex; align-items: center; justify-content: center; height: 100%; box-sizing: border-box; text-align: center; font-size: 1rem; padding: 12px 0;">🚌 대중교통</span>
+          <span
+            style="display: flex; align-items: center; justify-content: center; height: 100%; box-sizing: border-box; text-align: center; font-size: 1rem; padding: 12px 0;">🚌
+            대중교통</span>
         </label>
         <label class="mode-chip" style="flex: 1; margin: 0; padding: 0;">
           <input type="radio" name="transport_mode" value="walking">
-          <span style="display: flex; align-items: center; justify-content: center; height: 100%; box-sizing: border-box; text-align: center; font-size: 1rem; padding: 12px 0;">🚶 도보</span>
+          <span
+            style="display: flex; align-items: center; justify-content: center; height: 100%; box-sizing: border-box; text-align: center; font-size: 1rem; padding: 12px 0;">🚶
+            도보</span>
         </label>
       </div>
     </div>
