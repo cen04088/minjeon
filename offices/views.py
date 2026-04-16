@@ -156,38 +156,41 @@ def api_check_region(request):
         lng = float(request.GET.get('lng', 0))
 
         from django.core.cache import cache
-        cache_key = f"region_{round(lat, 3)}_{round(lng, 3)}"
+        from django.conf import settings
+        cache_key = f"region_kakao_{round(lat, 3)}_{round(lng, 3)}"
         cached_data = cache.get(cache_key)
         if cached_data is not None:
             return JsonResponse(cached_data)
 
-        # Nominatim 역지오코딩
-        headers = {'User-Agent': 'MinjeonApp/1.0'}
-        url = f"https://nominatim.openstreetmap.org/reverse?lat={lat}&lon={lng}&format=json&accept-language=ko"
-        resp = requests.get(url, headers=headers, timeout=4)
-
         region_name = '알 수 없는 지역'
         is_supported = False
 
-        if resp.status_code == 200:
-            addr = resp.json().get('address', {})
-            # 시/구/군 순으로 추출
-            city   = addr.get('city') or addr.get('county') or ''
-            district = addr.get('borough') or addr.get('suburb') or addr.get('city_district') or ''
-            state  = addr.get('province') or addr.get('state') or ''
+        api_key = getattr(settings, 'KAKAO_REST_API_KEY', '')
+        if api_key:
+            url = "https://dapi.kakao.com/v2/local/geo/coord2regioncode.json"
+            headers = {"Authorization": f"KakaoAK {api_key}"}
+            params = {"x": lng, "y": lat}
+            resp = requests.get(url, headers=headers, params=params, timeout=4)
+            if resp.status_code == 200:
+                docs = resp.json().get('documents', [])
+                if docs:
+                    doc = docs[0]
+                    # 시군구 (예: 강남구)
+                    city_district = doc.get('region_2depth_name', '')
+                    # 읍면동 (예: 역삼동)
+                    dong = doc.get('region_3depth_name', '')
+                    
+                    region_name = dong if dong else city_district
 
-            # 표시할 지역명 결정 (구 > 시 순)
-            region_name = district or city or '알 수 없는 지역'
-
-            # 지원 여부 판단
-            for keyword in SUPPORTED_KEYWORDS:
-                if keyword in district or keyword in city:
-                    # 대전광역시 서구 처리
-                    if keyword == '서구' and '대전' not in state and '대전' not in city:
-                        continue
-                    is_supported = True
-                    region_name = keyword
-                    break
+                    # 지원 여부 판단
+                    for keyword in SUPPORTED_KEYWORDS:
+                        sido = doc.get('region_1depth_name', '')
+                        if keyword in city_district or keyword in sido:
+                            # 대전광역시 / 광주광역시의 서구만 인정
+                            if keyword == '서구' and '대전' not in sido and '광주' not in sido:
+                                continue
+                            is_supported = True
+                            break
 
         result = {'supported': is_supported, 'region': region_name}
         cache.set(cache_key, result, 3600)
@@ -195,7 +198,6 @@ def api_check_region(request):
 
     except Exception as e:
         print(f"[api_check_region] Error: {e}")
-        # 오류 시 실패 안전 처리: 지원 안되는 것으로 반환
         return JsonResponse({'supported': False, 'region': '확인 불가'})
 
 

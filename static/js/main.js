@@ -231,7 +231,7 @@ async function searchManualLocation(e) {
       const genRadio = document.querySelector('input[name="search_mode"][value="GENERAL"]');
       
       if (regionData.supported) {
-        textEl.innerHTML = `<strong>[${json.data.name}]</strong> (<span style="color: #22c55e; font-weight: 600;">일반, 예측 모드 가능</span>)`;
+        textEl.innerHTML = `위치 설정 완료 <strong>(${regionData.region}</strong> - <span style="color: #22c55e; font-weight: 600;">일반, 예측 모드 가능</span>)`;
         statusEl.querySelector('.dot').className = 'dot dot-green';
         if (predRadio) {
             predRadio.disabled = false;
@@ -239,7 +239,7 @@ async function searchManualLocation(e) {
             if (chip) { chip.style.opacity = '1'; chip.style.cursor = 'pointer'; }
         }
       } else {
-        textEl.innerHTML = `<strong>[${json.data.name}]</strong> (<span style="color: #f59e0b; font-weight: 600;">일반 모드 가능</span>)`;
+        textEl.innerHTML = `위치 설정 완료 <strong>(${regionData.region}</strong> - <span style="color: #f59e0b; font-weight: 600;">일반 모드 가능</span>)`;
         statusEl.querySelector('.dot').className = 'dot dot-yellow';
         if (predRadio) {
             predRadio.disabled = false;
