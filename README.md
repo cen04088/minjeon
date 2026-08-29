@@ -74,6 +74,26 @@ $$ \text{Total Time} = \text{Driving Duration (Kakao)} + (\text{Waiting Count} \
 
 ---
 
+## 📁 프로젝트 구조
+
+```
+minjeon/
+├── config/       # Django 프로젝트 설정
+├── offices/       # 민원실 정보, 실시간 대기현황, 추천 알고리즘, AI 준비물 안내
+├── templates/      # 화면 템플릿
+├── static/         # css/js/PWA 매니페스트
+└── requirements.txt
+```
+
+---
+
+## ☁️ 배포
+
+- **플랫폼:** Railway (`railway.toml`)
+- **DB:** PostgreSQL (Railway 자동 프로비저닝)
+
+---
+
 ## 🏗️ 설치 및 실행 안내 (Setup)
 
 1. **저장소 클론 및 패키지 설치**

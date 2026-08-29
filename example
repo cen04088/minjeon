@@ -11,7 +11,7 @@
 # PGPORT=5432
 
 # # ── 공공데이터포털 ────────────────────────────
-# PUBLIC_DATA_API_KEY=REDACTED_PUBLIC_DATA_API_KEY
+# PUBLIC_DATA_API_KEY=your_data_go_kr_service_key
 
 # # ── API 엔드포인트 (data.go.kr 발급 후 기입) ──
 # WAITING_API_URL=https://apis.data.go.kr/B551982/cso_v2/cso_realtime_v2
